@@ -1,10 +1,10 @@
-# Third-party notices and unresolved source clearance
+# Third-party notices
 
-The owner confirmed the direction of publication in a separate public repository.
-A license for this harness's own code has not been chosen and recorded source
-publication rights have not been verified. No own LICENSE or permission grant is
-provided; absence of a license does not imply permission. Dependency terms are
-separate from the harness's own-code decision.
+On 2026-10-03 the owner created the public repository and explicitly authorized
+uploading the reviewed source package. A license for the harness's own code has
+not been chosen. No own LICENSE or additional license grant is supplied;
+publication authorization does not license dependency code. Dependency terms
+remain separate from the harness's own-code decision.
 
 This candidate exports source only: no font binaries, installed Node dependencies,
 container image, recordings or generated media. The preserved manifests/lockfile
@@ -32,7 +32,6 @@ Official sources checked on 2026-10-03:
   This historical notice evidence does not grant font redistribution rights or
   establish compliance for a future package.
 
-Concrete distribution needs recorded own-source rights, a chosen own-code
-license, and review of dependency/font/codec/base-image obligations for that
-package. No license for third-party assets, interfaces or trademarks is implied.
+Any future licensed distribution or binary/media package needs its own
+license decision and review of dependency/font/codec/base-image obligations. No license for third-party assets, interfaces or trademarks is implied.
 See [publication status](docs/publication-status.md).

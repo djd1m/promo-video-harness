@@ -22,8 +22,8 @@ The accepted historical runtime source is
 Dockerfile comment edits are separate candidate changes; old receipts remain
 bound to their exact source. No fresh Docker runtime or recipe build is claimed.
 
-The owner confirmed public-repository direction. Publication still requires a
-concrete independently reviewed export, recorded source-rights clearance, a
-chosen own-code license and available repository-creation transport. None of
-these directions grants a license or authorizes new spend. See
+The owner created the public destination and explicitly authorized uploading
+these source files on 2026-10-03. The standalone export was independently
+accepted at `aec7b7b`; publication uses SSH to that destination. No own-code
+license is selected, no additional license grant or new spend is implied. See
 [publication status](publication-status.md) and [export list](public-export.txt).

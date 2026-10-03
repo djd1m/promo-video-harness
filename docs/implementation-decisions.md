@@ -106,9 +106,9 @@ export includes the full runtime closure plus curated documentation and omits
 historical plans, telemetry, secrets and generated assets. The coordinator makes
 a fresh Git snapshot, with [provenance and publication status](publication-status.md).
 
-Own-source publication rights and licensing remain unresolved; dependency terms
-are separate. No own LICENSE or publication grant is supplied. No remote release,
-paid call, deployment, new engine or new media is produced by this candidate.
-Publication requires independent review/export validation, recorded rights and
-license decisions and functioning transport. A future video needs separate full
-render/repeat/media and independent visual/caption acceptance.
+On 2026-10-03 the owner created the public repository and explicitly authorized
+uploading the independently accepted source export. This covers source
+publication, not a new own-code license: no LICENSE is added. Dependency terms
+remain separate. No release tag, hosted image, paid call, deployment or new media
+is part of this publication. A future video needs separate full render/repeat/
+media and independent visual/caption acceptance.

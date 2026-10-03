@@ -12,12 +12,10 @@ export. См. [измерения](docs/runtime-evidence.md) и [границы 
 ## Полный checkout и зависимости
 
 Нужны Linux, Bash 4+, Node 22, npm, Docker и утилиты, проверяемые doctor.
-Публичный URL ещё не создан. Задайте `HARNESS_REPOSITORY` как проверенный локальный
-Git source или фактический URL репозитория:
+Полные исходники доступны в публичном репозитории:
 
 ```bash
-: "${HARNESS_REPOSITORY:?Set the reviewed Git source}"
-git clone "$HARNESS_REPOSITORY" ./promo-video-harness
+git clone https://github.com/djd1m/promo-video-harness.git ./promo-video-harness
 cd ./promo-video-harness
 (cd promo/remotion && npm ci --ignore-scripts --no-audit --no-fund)
 ```
@@ -73,6 +71,7 @@ bin/promo-video verify demo "${common[@]}" --inputs "$render_attempt"
 и runtime вместе: копирование одного `SKILL.md` не устанавливает harness.
 См. [навык](.claude/skills/promo-video/SKILL.md),
 [архитектуру](docs/implementation-decisions.md), [notices](THIRD_PARTY_NOTICES.md)
-и [статус публикации](docs/publication-status.md). Лицензия собственного кода и
-зафиксированные права на публикацию не подтверждены; разрешение не подразумевается.
+и [статус публикации](docs/publication-status.md). Владелец явно разрешил
+публикацию исходников. Лицензия собственного кода пока не выбрана; дополнительное
+лицензионное разрешение не подразумевается.
 [English](README.md).

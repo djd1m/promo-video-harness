@@ -12,12 +12,10 @@ not certify the later watchdog/comment edits or a new export. See
 ## Get the complete harness and prepare dependencies
 
 Use Linux, Bash 4+, Node 22, npm, Docker and the standard tools checked by doctor.
-Use a trusted complete source checkout; there is no published repository URL yet.
-Set `HARNESS_REPOSITORY` to the reviewed local Git source or actual repository URL:
+Use the complete source checkout from the public repository:
 
 ```bash
-: "${HARNESS_REPOSITORY:?Set the reviewed Git source}"
-git clone "$HARNESS_REPOSITORY" ./promo-video-harness
+git clone https://github.com/djd1m/promo-video-harness.git ./promo-video-harness
 cd ./promo-video-harness
 (cd promo/remotion && npm ci --ignore-scripts --no-audit --no-fund)
 ```
@@ -74,5 +72,6 @@ and this runtime together; copying `SKILL.md` alone does not install the harness
 Read the [skill](.claude/skills/promo-video/SKILL.md),
 [architecture](docs/implementation-decisions.md), [notices](THIRD_PARTY_NOTICES.md)
 and [publication status](docs/publication-status.md). Own-code licensing and
-recorded publication rights remain unresolved; no license grant is implied.
+publication was explicitly authorized by the owner. No own-code license has
+been selected; no additional license grant is implied.
 [Русский](README.ru.md).
