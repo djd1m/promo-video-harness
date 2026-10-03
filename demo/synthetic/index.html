@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Little Board — synthetic demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f5ef;color:#172b36;font:24px system-ui,sans-serif}
+header{padding:32px 6%;border-bottom:2px solid #172b3620;display:flex;justify-content:space-between;gap:20px}
+small{font-size:18px}main{max-width:1320px;margin:60px auto;padding:0 6%}h1{font-size:60px;line-height:1.05}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.column{background:#e6ece7;border-radius:20px;padding:24px}
+.card{background:white;border:1px solid #c5d0c8;border-radius:12px;padding:24px;margin:16px 0;line-height:1.4}
+button{background:#165c46;color:white;border:0;border-radius:12px;padding:16px 22px;font:inherit;cursor:pointer}
+#status{color:#165c46;font-weight:700;min-height:36px}.badge{color:#165c46;font-weight:700}
+@media(max-width:1100px){body{font-size:26px}.board{grid-template-columns:1fr}main{margin:32px auto}h1{font-size:48px}.column{padding:18px}.card{padding:18px;margin:12px 0}header{padding:24px 6%;flex-direction:column}}
+</style>
+<header><strong>Little Board</strong><small>Synthetic demo data · Local only</small></header>
+<main><span class="badge">A calm space for your ideas</span><h1>Today starts with<br>one clear next step.</h1>
+<p id="status">Three fictional ideas, one simple board.</p>
+<div class="board"><section class="column"><h2>Ideas</h2><div class="card" id="idea">Sketch a tiny garden</div><button id="collect">Collect an idea</button></section>
+<section class="column"><h2>Today</h2><div class="card" id="today">Write a friendly welcome</div><button id="choose">Choose a focus</button></section>
+<section class="column"><h2>Done</h2><div class="card" id="done">Tidy the reading corner</div><button id="finish">Celebrate progress</button></section></div></main>
+<script>
+document.querySelector('#collect').onclick=()=>{document.querySelector('#idea').textContent='Plan a sunny reading nook';document.querySelector('#status').textContent='A new idea has a home.'};
+document.querySelector('#choose').onclick=()=>{document.querySelector('#today').textContent='Focus: plan a sunny reading nook';document.querySelector('#status').textContent='One small step for today.'};
+document.querySelector('#finish').onclick=()=>{document.querySelector('#done').textContent='Completed: a sunny reading nook';document.querySelector('#status').textContent='Small steps add up. Nicely done.'};
+</script></html>

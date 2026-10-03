@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -uo pipefail
+# The public supervisor always runs; inherited guard variables cannot bypass it.
+PROMO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+usage() {
+  cat <<'HELP'
+Usage: bin/promo-video doctor|capture|render|verify [demo] --artifacts DIR
+       [--config FILE] [--inputs DIR] [--cpus N] [--memory Nm|Ng]
+       [--timeout SECONDS] [--attempt-timeout SECONDS] [--watchdog not_applicable|unavailable]
+All configurations/recorders are trusted executable code. No installation or image pulls.
+Capture prints its assets directory; render --inputs uses that directory.
+Verify --inputs uses a completed render attempt directory. Exit: 0 checked, 1 defect, 2 not performed.
+HELP
+}
+[[ ${1:-} == --help || ${1:-} == -h ]] && { usage; exit 0; }
+PROMO_COMMAND=${1:-}; shift || true
+case "$PROMO_COMMAND" in doctor|capture|render|verify) ;; *) usage >&2; exit 2 ;; esac
+[[ ${1:-} == demo ]] && shift
+PROMO_CONFIG="$PROMO_ROOT/demo/synthetic/config.mjs"
+PROMO_ARTIFACTS= PROMO_INPUTS= PROMO_CPUS=2 PROMO_MEMORY=4g PROMO_TIMEOUT=600
+PROMO_WATCHDOG=not_applicable PROMO_ATTEMPT_TIMEOUT=1800
+while (($#)); do
+  case "$1" in
+    --help|-h) usage; exit 0 ;;
+    --artifacts|--config|--inputs|--cpus|--memory|--timeout|--attempt-timeout|--watchdog)
+      (($# >= 2)) && [[ -n $2 && $2 != --* ]] || { echo "Missing value: $1" >&2; exit 2; }
+      case "$1" in
+        --artifacts) PROMO_ARTIFACTS=$2 ;; --config) PROMO_CONFIG=$2 ;;
+        --inputs) PROMO_INPUTS=$2 ;; --cpus) PROMO_CPUS=$2 ;;
+        --memory) PROMO_MEMORY=$2 ;; --timeout) PROMO_TIMEOUT=$2 ;;
+        --watchdog) PROMO_WATCHDOG=$2 ;; --attempt-timeout) PROMO_ATTEMPT_TIMEOUT=$2 ;;
+      esac
+      shift 2 ;;
+    *) echo "Invalid argument: $1" >&2; exit 2 ;;
+  esac
+done
+[[ "$PROMO_ATTEMPT_TIMEOUT" =~ ^[1-9][0-9]{0,3}$ ]] && ((PROMO_ATTEMPT_TIMEOUT <= 7200)) || {
+  echo 'Attempt timeout range: decimal integer 1..7200 seconds' >&2; exit 2;
+}
+export PROMO_ROOT PROMO_COMMAND PROMO_CONFIG PROMO_ARTIFACTS PROMO_INPUTS PROMO_CPUS PROMO_MEMORY
+export PROMO_TIMEOUT PROMO_WATCHDOG PROMO_ATTEMPT_TIMEOUT
+# Arguments are parsed once above; environment/configuration validation remains supervised.
+promo_main() {
+source "$PROMO_ROOT/lib/promo-video/env.sh"
+source "$PROMO_ROOT/lib/promo-video/docker.sh"
+source "$PROMO_ROOT/lib/promo-video/commands.sh"
+promo_env || exit 2
+mkdir -p "$PROMO_ARTIFACTS/attempts" || exit 2
+PROMO_ATTEMPT=$(mktemp -d "$PROMO_ARTIFACTS/attempts/$PROMO_COMMAND-XXXXXXXX") || exit 2
+export PROMO_ROOT PROMO_COMMAND PROMO_CONFIG PROMO_ARTIFACTS PROMO_INPUTS PROMO_CPUS PROMO_MEMORY
+export PROMO_TIMEOUT PROMO_WATCHDOG PROMO_ATTEMPT PROMO_IMAGE PROMO_PORTABLE=1
+printf '%s\n' "$PROMO_ATTEMPT" > "$PROMO_SUPERVISOR_ATTEMPT"
+node "$PROMO_ROOT/lib/promo-video/receipt.mjs" init || exit 2
+trap 'promo_interrupt' INT TERM
+promo_check configuration promo_validate || exit $?
+"promo_$PROMO_COMMAND"; rc=$?
+exit "$rc"
+}
+export -f promo_main
+PROMO_SUPERVISOR_ATTEMPT=$(mktemp) || exit 2
+PROMO_SUPERVISOR_LOG=$(mktemp) || { rm -f "$PROMO_SUPERVISOR_ATTEMPT"; exit 2; }
+export PROMO_SUPERVISOR_ATTEMPT
+supervisor_stop=none
+trap 'supervisor_stop=interrupted; kill -TERM "$supervisor_pid" 2>/dev/null || true' INT TERM
+LC_ALL=C timeout --verbose -k 45 "$PROMO_ATTEMPT_TIMEOUT" bash -c 'promo_main' "$0" 2>"$PROMO_SUPERVISOR_LOG" &
+supervisor_pid=$!
+raw=0
+wait "$supervisor_pid" || raw=$?
+if kill -0 "$supervisor_pid" 2>/dev/null; then wait "$supervisor_pid" || raw=$?; fi
+trap '' INT TERM
+cat "$PROMO_SUPERVISOR_LOG" >&2
+if [[ $supervisor_stop == none ]] && grep -Eq '(^|/)timeout: sending signal ' "$PROMO_SUPERVISOR_LOG"; then supervisor_stop=timeout; fi
+case "$raw" in 0|1|2) rc=$raw ;; *) rc=2 ;; esac
+[[ $supervisor_stop == none ]] || rc=2
+if [[ $supervisor_stop == none && $raw -gt 128 ]]; then supervisor_stop=unknown; fi
+PROMO_ATTEMPT=$(cat "$PROMO_SUPERVISOR_ATTEMPT")
+if [[ -n $PROMO_ATTEMPT && -f $PROMO_ATTEMPT/receipt.json ]]; then
+  PROMO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+  export PROMO_ATTEMPT PROMO_ROOT
+  node "$PROMO_ROOT/lib/promo-video/receipt.mjs" supervisor "$raw" "$supervisor_stop" || rc=2
+  node "$PROMO_ROOT/lib/promo-video/receipt.mjs" finish "$rc"; rc=$?
+  printf 'Receipt: %s/receipt.json\n' "$PROMO_ATTEMPT"
+fi
+rm -f "$PROMO_SUPERVISOR_ATTEMPT" "$PROMO_SUPERVISOR_LOG"
+exit "$rc"

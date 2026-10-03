@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+// Deterministic simulated evidence, never encoded media or real Docker.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const args=process.argv.slice(2),root=process.env.PROMO_MOCK_ROOT;
+if(!root) process.exit(2);
+fs.mkdirSync(root,{recursive:true});
+fs.appendFileSync(path.join(root,'calls.jsonl'),JSON.stringify(args)+'\n');
+const mode=process.env.PROMO_MOCK_MODE || 'success',id='sha256:'+'a'.repeat(64);
+const key=cid=>path.join(root,cid+'.json');
+const lookup=ref=>fs.readdirSync(root).filter(f=>f.endsWith('.json')).map(f=>({file:path.join(root,f),data:JSON.parse(fs.readFileSync(path.join(root,f)))}))
+  .find(o=>o.data[0].Id===ref || o.data[0].Name==='/'+ref);
+if(args[0]==='image' && args[1]==='inspect') {
+  if(mode==='absent-image') process.exit(1);
+  console.log(args.includes('-f') ? id : JSON.stringify([{Id:id}]));process.exit(0);
+}
+if(args[0]==='container' && args[1]==='inspect') {
+  const found=lookup(args[2]);
+  if(mode==='inspect-failure' || mode==='ownership-conflict' || !found) process.exit(1);
+  console.log(JSON.stringify(found.data));process.exit(0);
+}
+if(args[0]==='stop') {
+  const found=lookup(args.at(-1));
+  if(found) {found.data[0].State.Running=false;fs.writeFileSync(found.file,JSON.stringify(found.data));}
+  process.exit(0);
+}
+if(args[0]==='rm') {const found=lookup(args.at(-1));if(found) fs.unlinkSync(found.file);process.exit(0);}
+if(args[0]!=='run') process.exit(2);
+const name=args[args.indexOf('--name')+1],cid=crypto.createHash('sha256').update(name).digest('hex');
+if(mode==='ownership-conflict') {
+  fs.writeFileSync(key(cid),JSON.stringify([{Id:cid,Name:'/'+name,foreign:true}]));process.exit(125);
+}
+const exit=mode==='nonzero' ? 7 : mode==='not-performed' ? 2 : ['oom','non-timeout137'].includes(mode) ? 137 : 0;
+fs.writeFileSync(args[args.indexOf('--cidfile')+1],cid+'\n');
+fs.writeFileSync(key(cid),JSON.stringify([{Id:cid,Name:'/'+name,Image:mode==='image-mismatch' ? 'sha256:'+'b'.repeat(64) : id,
+  Config:{Labels:{'promo.attempt':args[args.indexOf('--label')+1].split('=')[1]}},
+  RestartCount:mode==='restart' ? 1 : 0,State:{Running:['timeout','interrupt'].includes(mode),ExitCode:exit,OOMKilled:mode==='oom'}}]));
+const mount=dst=>{
+  const arg=args.find(v=>v.split(',').includes('dst='+dst) && v.startsWith('type=bind,src='));
+  if(arg) return arg.slice('type=bind,src='.length).split(',dst=')[0];
+  for(let i=0;i<args.length-1;i++) if(args[i]==='-v' && args[i+1].split(':')[1]===dst) return args[i+1].split(':')[0];
+};
+if(mode==='timeout' || mode==='interrupt') {setInterval(()=>{},1000);} else {
+  if(args.includes('/harness/demo/synthetic/record.mjs') && exit===0) {
+    const dir=mount('/assets');
+    for(const fmt of ['16x9','9x16','1x1']) fs.writeFileSync(path.join(dir,`demo-${fmt}.webm`),'MOCK: not video');
+    fs.writeFileSync(path.join(dir,'record-log-demo.json'),JSON.stringify({events:[],simulated:true}));
+  }
+  if(mount('/public')) {
+    fs.mkdirSync(path.join(mount('/public'),'fonts'),{recursive:true});
+    for(const f of ['regular','bold']) fs.writeFileSync(path.join(mount('/public'),'fonts',f+'.ttf'),'MOCK font');
+  }
+  if(mount('/p')) {
+    const proof=mount('/p');fs.mkdirSync(path.join(proof,'sheets'),{recursive:true});
+    for(const fmt of ['16x9','9x16','1x1']) {
+      for(let k=1;k<=4;k++) fs.writeFileSync(path.join(proof,`sheets/${fmt}-step025-${k}.png`),'MOCK sheet');
+      fs.writeFileSync(path.join(proof,`sheets/${fmt}-boundary-6.png`),'MOCK boundary');
+    }
+  }
+  const output=args.find(v=>/^\/out\/(16x9|9x16|1x1|16x9-repeat)\.mp4$/.test(v));
+  if(output && mount('/out')) fs.writeFileSync(path.join(mount('/out'),path.basename(output)),'MOCK: not video');
+  if(args.includes('/s/inspect-config.mjs')) console.log('CAPTION\tscreen\t10\t1\tCollect your next steps\nBOUNDARY\twide\t6\nBOUNDARY\ttall\t6\nBOUNDARY\tsquare\t6\nTOTAL simulated');
+  else if(args.some(v=>v.includes('ffprobe -v error -count_frames'))) {
+    console.log(`16x9 1920,1080,${mode==='media-defect' ? 1 : 1350} 0\n9x16 1080,1920,1350 0\n1x1 1080,1080,1350 0`);
+  } else console.log('SIMULATED Docker operation; runtime not performed');
+  process.exit(exit);
+}

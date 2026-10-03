@@ -1,0 +1,31 @@
+name: Fast harness checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fast-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Shell and Node syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n bin/promo-video
+          node --check tests/fixtures/docker
+          while IFS= read -r -d '' file; do bash -n "$file"; done < <(find lib .claude/skills/promo-video promo -type f -name '*.sh' -print0)
+          while IFS= read -r -d '' file; do node --check "$file"; done < <(find lib demo .claude/skills/promo-video tests promo -type f -name '*.mjs' -print0)
+      - name: Unit and fixture gates
+        run: node --test tests/promo-video.test.mjs

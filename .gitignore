@@ -1,0 +1,8 @@
+node_modules/
+.promo-assets/
+.env
+.env.*
+*.webm
+*.mp4
+artifacts/
+.dz/

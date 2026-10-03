@@ -1,0 +1,34 @@
+# Repository-relative paths; directories expand only to tracked source files.
+# Coordinator creates a fresh Git snapshot, without donor history.
+README.md
+README.ru.md
+THIRD_PARTY_NOTICES.md
+AGENTS.md
+.gitignore
+.github/workflows/ci.yml
+bin/promo-video
+lib/promo-video/
+demo/synthetic/
+.claude/skills/promo-video/
+tests/promo-video.test.mjs
+tests/fixtures/docker
+promo/capture/hidpi-recorder.mjs
+promo/remotion/package.json
+promo/remotion/package-lock.json
+promo/remotion/tsconfig.json
+promo/remotion/shared/
+promo/render-image/Dockerfile
+promo/render-image/README.md
+promo/render-image/build.sh
+promo/render-image/check.sh
+promo/render-image/fonts/build_onest.py
+docs/public-export.txt
+docs/export-audit.md
+docs/runtime-evidence.md
+docs/pipeline-walkthrough.md
+docs/implementation-decisions.md
+docs/current-delivery-scope.md
+docs/publication-status.md
+# EXCLUDE all paths not listed above, including docs/telemetry/ and historical
+# extraction/implementation/autonomous plans, private analysis-run files,
+# raw recordings, generated media/fonts, node_modules/, .dz/ and .env*.
