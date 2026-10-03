@@ -3,8 +3,10 @@
 The owner created [djd1m/promo-video-harness](https://github.com/djd1m/promo-video-harness)
 and explicitly asked the coordinator to upload all source files for this skill.
 This direct instruction authorizes publishing the concrete independently
-reviewed harness export. The SSH destination is available; repository creation
-is no longer required. No own-code license is selected and no LICENSE is added.
+reviewed harness export. Repository creation is no longer required. The existing
+SSH deploy key cannot write to this new repository; the GitHub integration also
+returned HTTP 403 on a blob write. Source publication remains pending write
+access to this destination. No own-code license is selected and no LICENSE is added.
 The owner instruction does not change third-party dependency terms.
 
 ## Source package
