@@ -64,14 +64,36 @@ Replace both placeholders. Per-operation timeout is 900s; attempt timeout is
 review. Codes: **0** named checks passed; **1** demonstrated defect; **2** work or
 evidence unavailable/incomplete. A passing capture does not establish video acceptance.
 
-## Connect the skill separately
+## Use with Codex or Claude Code
 
-Register the complete canonical directory `.claude/skills/promo-video/` from this
-checkout using your agent's supported skill mechanism. Keep its modules/scripts
-and this runtime together; copying `SKILL.md` alone does not install the harness.
-Read the [skill](.claude/skills/promo-video/SKILL.md),
-[architecture](docs/implementation-decisions.md), [notices](THIRD_PARTY_NOTICES.md)
-and [publication status](docs/publication-status.md). Own-code licensing and
-publication was explicitly authorized by the owner. No own-code license has
+**Codex:** open this complete checkout in Codex CLI or the IDE extension. The
+repository entrypoint [.agents/skills/promo-video/SKILL.md](.agents/skills/promo-video/SKILL.md)
+is discovered through `.agents/skills`. Invoke it with:
+
+```text
+$promo-video Create a scenario for my product; do not render yet.
+```
+
+For use from other projects, register the skill at user scope from this checkout:
+
+```bash
+mkdir -p "$HOME/.agents/skills"
+ln -s "$PWD/.agents/skills/promo-video" "$HOME/.agents/skills/promo-video"
+```
+
+Run those commands from the harness root and keep this checkout in place.
+`ln -s` does not replace an existing installation. If the skill does not appear,
+restart Codex. Discovery locations and symlink support follow the
+[official OpenAI documentation](https://learn.chatgpt.com/docs/build-skills).
+Dependencies and the Docker image still need the preparation above.
+
+**Claude Code:** the complete canonical skill remains at
+[.claude/skills/promo-video/](.claude/skills/promo-video/SKILL.md).
+Both entrypoints share the same workflow, modules, scripts and runtime. Copying
+only a `SKILL.md` does not install the harness.
+
+Read the [architecture](docs/implementation-decisions.md),
+[notices](THIRD_PARTY_NOTICES.md) and [publication status](docs/publication-status.md).
+Publication was explicitly authorized by the owner. No own-code license has
 been selected; no additional license grant is implied.
 [Русский](README.ru.md).

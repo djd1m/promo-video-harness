@@ -10,6 +10,7 @@ bin/promo-video
 lib/promo-video/
 demo/synthetic/
 .claude/skills/promo-video/
+.agents/skills/promo-video/SKILL.md
 tests/promo-video.test.mjs
 tests/fixtures/docker
 promo/capture/hidpi-recorder.mjs

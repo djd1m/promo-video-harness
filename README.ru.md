@@ -64,14 +64,37 @@ bin/promo-video verify demo "${common[@]}" --inputs "$render_attempt"
 проверки прошли; **1** — доказанный дефект; **2** — работа/данные недоступны или
 неполны. Успешный capture не означает приёмку видео.
 
-## Подключение навыка отдельно
+## Использование в Codex и Claude Code
 
-Зарегистрируйте полный канонический каталог `.claude/skills/promo-video/` из
-этого checkout поддерживаемым механизмом вашего агента. Сохраните modules/scripts
-и runtime вместе: копирование одного `SKILL.md` не устанавливает harness.
-См. [навык](.claude/skills/promo-video/SKILL.md),
-[архитектуру](docs/implementation-decisions.md), [notices](THIRD_PARTY_NOTICES.md)
-и [статус публикации](docs/publication-status.md). Владелец явно разрешил
-публикацию исходников. Лицензия собственного кода пока не выбрана; дополнительное
-лицензионное разрешение не подразумевается.
+**Codex:** откройте полный checkout в Codex CLI или IDE extension.
+Точка входа [.agents/skills/promo-video/SKILL.md](.agents/skills/promo-video/SKILL.md)
+обнаруживается через `.agents/skills`. Вызовите навык:
+
+```text
+$promo-video Подготовь сценарий для моего продукта; пока без рендера.
+```
+
+Для использования из других проектов подключите его на уровне пользователя,
+выполнив из корня harness:
+
+```bash
+mkdir -p "$HOME/.agents/skills"
+ln -s "$PWD/.agents/skills/promo-video" "$HOME/.agents/skills/promo-video"
+```
+
+Сохраните checkout на этом месте. `ln -s` не заменяет существующую установку.
+Если навык не появился, перезапустите Codex. Пути обнаружения и поддержка
+символических ссылок проверены по
+[официальной документации OpenAI](https://learn.chatgpt.com/docs/build-skills).
+Зависимости и Docker-образ всё равно нужно подготовить по инструкции выше.
+
+**Claude Code:** канонический навык остаётся в
+[.claude/skills/promo-video/](.claude/skills/promo-video/SKILL.md).
+Обе точки входа используют общие workflow, modules, scripts и runtime.
+Копирование одного `SKILL.md` не устанавливает harness.
+
+См. [архитектуру](docs/implementation-decisions.md),
+[notices](THIRD_PARTY_NOTICES.md) и [статус публикации](docs/publication-status.md).
+Владелец явно разрешил публикацию исходников. Лицензия собственного кода
+пока не выбрана; дополнительное лицензионное разрешение не подразумевается.
 [English](README.md).
